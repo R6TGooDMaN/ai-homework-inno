@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .input-row input {
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 15px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        #results {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Monthly Expense Calculator</h1>
+    
+    <table id="expenseTable">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Amount ($)</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="expenseBody">
+            <!-- Initial example data -->
+            <tr>
+                <td>Groceries</td>
+                <td>15000</td>
+                <td><button onclick="deleteRow(this)">Delete</button></td>
+            </tr>
+            <tr>
+                <td>Rent</td>
+                <td>40000</td>
+                <td><button onclick="deleteRow(this)">Delete</button></td>
+            </tr>
+            <tr>
+                <td>Transportation</td>
+                <td>5000</td>
+                <td><button onclick="deleteRow(this)">Delete</button></td>
+            </tr>
+            <tr>
+                <td>Entertainment</td>
+                <td>10000</td>
+                <td><button onclick="deleteRow(this)">Delete</button></td>
+            </tr>
+            <tr>
+                <td>Communication</td>
+                <td>2000</td>
+                <td><button onclick="deleteRow(this)">Delete</button></td>
+            </tr>
+            <tr>
+                <td>Gym</td>
+                <td>3000</td>
+                <td><button onclick="deleteRow(this)">Delete</button></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="input-row">
+        <input type="text" id="categoryInput" placeholder="Enter category">
+        <input type="number" id="amountInput" placeholder="Enter amount ($)">
+        <button onclick="addExpense()">Add Expense</button>
+    </div>
+
+    <button onclick="calculateExpenses()">Calculate</button>
+
+    <div id="results"></div>
+
+    <script>
+        function addExpense() {
+            const category = document.getElementById('categoryInput').value.trim();
+            const amount = parseFloat(document.getElementById('amountInput').value);
+
+            if (category === '' || isNaN(amount) || amount <= 0) {
+                alert('Please enter a valid category and amount.');
+                return;
+            }
+
+            const tableBody = document.getElementById('expenseBody');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${category}</td>
+                <td>${amount}</td>
+                <td><button onclick="deleteRow(this)">Delete</button></td>
+            `;
+            tableBody.appendChild(row);
+
+            // Clear inputs
+            document.getElementById('categoryInput').value = '';
+            document.getElementById('amountInput').value = '';
+        }
+
+        function deleteRow(button) {
+            button.parentElement.parentElement.remove();
+        }
+
+        function calculateExpenses() {
+            const rows = document.querySelectorAll('#expenseBody tr');
+            const expenses = [];
+
+            // Collect expense data
+            rows.forEach(row => {
+                const category = row.cells[0].textContent;
+                const amount = parseFloat(row.cells[1].textContent);
+                expenses.push({ category, amount });
+            });
+
+            // Calculate total
+            const total = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+
+            // Calculate average daily expense (assuming 30 days)
+            const averageDaily = total / 30;
+
+            // Get top 3 expenses
+            const top3 = expenses
+                .sort((a, b) => b.amount - a.amount)
+                .slice(0, 3)
+                .map(exp => `${exp.category}: $${exp.amount.toLocaleString()}`);
+
+            // Display results
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <h2>Results</h2>
+                <p><strong>Total Amount of Expenses:</strong> $${total.toLocaleString()}</p>
+                <p><strong>Average Daily Expense:</strong> $${averageDaily.toFixed(2)}</p>
+                <p><strong>Top 3 Largest Expenses:</strong></p>
+                <ul>
+                    ${top3.length > 0 ? top3.map(exp => `<li>${exp}</li>`).join('') : '<li>No expenses entered</li>'}
+                </ul>
+            `;
+        }
+    </script>
+</body>
+</html>
